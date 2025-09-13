@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "tailwindcss";
+
+/* simple custom styles */
+html.dark { background: #0f172a; color: #e6eef8; }
+body { @apply bg-gray-50 text-gray-800; }
+html.dark body { @apply bg-slate-900 text-gray-200; }
