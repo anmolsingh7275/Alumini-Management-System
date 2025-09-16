@@ -25,7 +25,7 @@ export default function Navbar() {
             <button onClick={() => { logout(); navigate("/"); }} className="text-sm px-3 py-1 bg-red-500 text-white rounded">Logout</button>
           </>
         ) : (
-          <Link to="/login" className="px-3 py-1 bg-blue-600 text-white rounded">Login</Link>
+          <Link to="/login" className="px-3 py-1 bg-blue-600 ">Login</Link>
         )}
       </div>
     </nav>
