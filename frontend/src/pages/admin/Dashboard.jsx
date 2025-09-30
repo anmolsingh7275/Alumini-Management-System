@@ -1,197 +1,172 @@
-import React, { useEffect, useState } from "react";
-import api from "../../services/api";
-import Navbar from "../Navbar"; // import your existing Navbar
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import React, { useState } from "react";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell
+} from "recharts";
+import {
+  FaUsers, FaUserGraduate, FaBriefcase, FaHeart, FaChartBar
+} from "react-icons/fa";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null);
   const [isDark, setIsDark] = useState(false);
 
-  useEffect(() => {
-     api.get("/admin/stats")
-    .then((r) => setStats(r.data))
-    .catch(() => {
-      // fallback mock data if backend fails
-      setStats({
-        alumniCount: 120,
-        studentCount: 350,
-        jobCount: 25,
-        donationCount: 15
-      });
-    });
-  }, []);
+  // Mock stats directly
+  const stats = {
+    alumniCount: 120,
+    studentCount: 350,
+    jobCount: 25,
+    donationCount: 15
+  };
 
-  const data = stats ? [
+  const data = [
     { name: "Alumni", value: stats.alumniCount },
     { name: "Students", value: stats.studentCount },
     { name: "Jobs", value: stats.jobCount },
     { name: "Donations", value: stats.donationCount }
-  ] : [];
+  ];
 
-  const pieData = stats ? [
+  const pieData = [
     { name: "Alumni", value: stats.alumniCount, color: "#3b82f6" },
     { name: "Students", value: stats.studentCount, color: "#10b981" },
     { name: "Jobs", value: stats.jobCount, color: "#f59e0b" },
     { name: "Donations", value: stats.donationCount, color: "#ef4444" }
-  ] : [];
+  ];
 
   const toggleTheme = () => {
     setIsDark(!isDark);
     document.documentElement.classList.toggle("dark");
   };
 
-  return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Navbar Component */}
-      <Navbar />
+  const StatCard = ({ title, value, icon, color }) => (
+    <div
+      className={`p-6 rounded-xl shadow-md transition transform hover:scale-105
+      ${isDark ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"}`}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className={`text-sm font-medium ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+            {title}
+          </p>
+          <p className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+            {value.toLocaleString()}
+          </p>
+        </div>
+        <div className={`w-12 h-12 rounded-lg flex items-center justify-center bg-${color}-100 dark:bg-${color}-900`}>
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
 
-      {/* Page Content */}
+  return (
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? "dark bg-gray-900" : "bg-gray-50"}`}>
       <div className="p-6">
-        {/* Page Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className={`text-2xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            Alumni Management Dashboard
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className={`text-3xl font-bold tracking-tight ${isDark ? "text-white" : "text-gray-900"}`}>
+            Admin Dashboard
           </h1>
           <button
             onClick={toggleTheme}
-            className={`p-2 rounded-lg transition-colors ${
-              isDark 
-                ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400' 
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-            }`}
+            className={`px-3 py-2 rounded-lg font-medium transition-colors
+              ${isDark ? "bg-gray-700 text-yellow-400 hover:bg-gray-600"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
           >
-            {isDark ? '☀️' : '🌙'}
+            {isDark ? "☀️ Light" : "🌙 Dark"}
           </button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {stats ? (
             <>
-              {[
-                { title: "Total Alumni", value: stats.alumniCount, icon: "👥", color: "blue" },
-                { title: "Active Students", value: stats.studentCount, icon: "🎓", color: "green" },
-                { title: "Job Postings", value: stats.jobCount, icon: "💼", color: "amber" },
-                { title: "Donations", value: stats.donationCount, icon: "❤️", color: "red" },
-              ].map((card, i) => (
-                <div key={i} className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl border shadow-sm hover:shadow-md transition-shadow`}>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{card.title}</p>
-                      <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{card.value.toLocaleString()}</p>
-                    </div>
-                    <div className={`w-12 h-12 bg-${card.color}-100 dark:bg-${card.color}-900 rounded-lg flex items-center justify-center`}>
-                      <span className={`text-${card.color}-600 dark:text-${card.color}-400 text-xl`}>{card.icon}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+              <StatCard title="Total Alumni" value={stats.alumniCount} color="blue"
+                icon={<FaUsers className="text-blue-600 dark:text-blue-400 text-xl" />} />
+              <StatCard title="Active Students" value={stats.studentCount} color="green"
+                icon={<FaUserGraduate className="text-green-600 dark:text-green-400 text-xl" />} />
+              <StatCard title="Job Postings" value={stats.jobCount} color="amber"
+                icon={<FaBriefcase className="text-amber-600 dark:text-amber-400 text-xl" />} />
+              <StatCard title="Donations" value={stats.donationCount} color="red"
+                icon={<FaHeart className="text-red-600 dark:text-red-400 text-xl" />} />
             </>
           ) : (
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl border shadow-sm animate-pulse`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className={`h-4 ${isDark ? 'bg-gray-700' : 'bg-gray-200'} rounded mb-2`}></div>
-                    <div className={`h-8 ${isDark ? 'bg-gray-700' : 'bg-gray-200'} rounded w-20`}></div>
-                  </div>
-                  <div className={`w-12 h-12 ${isDark ? 'bg-gray-700' : 'bg-gray-200'} rounded-lg`}></div>
-                </div>
-              </div>
+              <div key={i} className="h-28 rounded-xl animate-pulse bg-gray-200 dark:bg-gray-700" />
             ))
           )}
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           {/* Bar Chart */}
-          <div className={`lg:col-span-2 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl border shadow-sm`}>
-            <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Platform Overview</h3>
-            <div style={{ height: 300 }}>
+          <div className={`lg:col-span-2 p-6 rounded-xl shadow-md border 
+            ${isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
+              Platform Overview
+            </h3>
+            <div style={{ height: 320 }}>
               {data.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <XAxis 
-                      dataKey="name" 
-                      tick={{ fill: isDark ? '#9ca3af' : '#6b7280', fontSize: 12 }}
-                      axisLine={{ stroke: isDark ? '#374151' : '#e5e7eb' }}
-                    />
-                    <YAxis 
-                      tick={{ fill: isDark ? '#9ca3af' : '#6b7280', fontSize: 12 }}
-                      axisLine={{ stroke: isDark ? '#374151' : '#e5e7eb' }}
-                    />
-                    <Tooltip 
+                  <BarChart data={data}>
+                    <XAxis dataKey="name" tick={{ fill: isDark ? "#9ca3af" : "#6b7280" }} />
+                    <YAxis tick={{ fill: isDark ? "#9ca3af" : "#6b7280" }} />
+                    <Tooltip
                       contentStyle={{
-                        backgroundColor: isDark ? '#1f2937' : '#ffffff',
-                        border: `1px solid ${isDark ? '#374151' : '#e5e7eb'}`,
-                        borderRadius: '8px',
-                        color: isDark ? '#ffffff' : '#000000'
+                        backgroundColor: isDark ? "#1f2937" : "#fff",
+                        borderRadius: "8px"
                       }}
                     />
-                    <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="value" fill="#3b82f6" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <div className={`flex items-center justify-center h-full ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                    <p>Loading chart...</p>
-                  </div>
-                </div>
+                <div className="flex justify-center items-center h-full text-gray-400">Loading chart...</div>
               )}
             </div>
           </div>
 
           {/* Pie Chart */}
-          <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl border shadow-sm`}>
-            <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Distribution</h3>
-            <div style={{ height: 300 }}>
+          <div className={`p-6 rounded-xl shadow-md border
+            ${isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
+              Distribution
+            </h3>
+            <div style={{ height: 320 }}>
               {pieData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer>
                   <PieChart>
                     <Pie
                       data={pieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={100}
-                      paddingAngle={5}
-                      dataKey="value"
+                      cx="50%" cy="50%"
+                      innerRadius={60} outerRadius={100}
+                      dataKey="value" paddingAngle={4}
                     >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {pieData.map((item, i) => (
+                        <Cell key={i} fill={item.color} />
                       ))}
                     </Pie>
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{
-                        backgroundColor: isDark ? '#1f2937' : '#ffffff',
-                        border: `1px solid ${isDark ? '#374151' : '#e5e7eb'}`,
-                        borderRadius: '8px',
-                        color: isDark ? '#ffffff' : '#000000'
+                        backgroundColor: isDark ? "#1f2937" : "#fff",
+                        borderRadius: "8px"
                       }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className={`flex items-center justify-center h-full ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                    <p>Loading chart...</p>
-                  </div>
-                </div>
+                <div className="flex justify-center items-center h-full text-gray-400">Loading chart...</div>
               )}
             </div>
-
             {/* Legend */}
             {pieData.length > 0 && (
               <div className="mt-4 space-y-2">
-                {pieData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm">
+                {pieData.map((item, i) => (
+                  <div key={i} className="flex justify-between text-sm">
                     <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: item.color }}></div>
-                      <span className={isDark ? 'text-gray-300' : 'text-gray-600'}>{item.name}</span>
+                      <span className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: item.color }}></span>
+                      <span className={isDark ? "text-gray-300" : "text-gray-600"}>{item.name}</span>
                     </div>
-                    <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.value.toLocaleString()}</span>
+                    <span className={isDark ? "text-white" : "text-gray-900"}>{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -200,23 +175,30 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl border shadow-sm`}>
-          <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { title: "Add Alumni", icon: "👤", color: "blue" },
-              { title: "Post Job", icon: "💼", color: "green" },
-              { title: "View Reports", icon: "📊", color: "amber" },
-            ].map((action, i) => (
-              <button key={i} className={`p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-${action.color}-500 dark:hover:border-${action.color}-400 transition-colors`}>
-                <div className="text-center">
-                  <div className={`w-8 h-8 bg-${action.color}-100 dark:bg-${action.color}-900 rounded-lg mx-auto mb-2 flex items-center justify-center`}>
-                    <span className={`text-${action.color}-600 dark:text-${action.color}-400`}>{action.icon}</span>
-                  </div>
-                  <p className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>{action.title}</p>
-                </div>
-              </button>
-            ))}
+        <div className={`p-6 rounded-xl shadow-md border 
+          ${isDark ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+          <h3 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
+            Quick Actions
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <button className="p-5 rounded-lg border-2 border-dashed hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+              <div className="flex flex-col items-center">
+                <FaUsers className="text-blue-600 dark:text-blue-400 text-2xl mb-2" />
+                <p className={`${isDark ? "text-gray-300" : "text-gray-700"}`}>Add Alumni</p>
+              </div>
+            </button>
+            <button className="p-5 rounded-lg border-2 border-dashed hover:border-green-500 dark:hover:border-green-400 transition-colors">
+              <div className="flex flex-col items-center">
+                <FaBriefcase className="text-green-600 dark:text-green-400 text-2xl mb-2" />
+                <p className={`${isDark ? "text-gray-300" : "text-gray-700"}`}>Post Job</p>
+              </div>
+            </button>
+            <button className="p-5 rounded-lg border-2 border-dashed hover:border-amber-500 dark:hover:border-amber-400 transition-colors">
+              <div className="flex flex-col items-center">
+                <FaChartBar className="text-amber-600 dark:text-amber-400 text-2xl mb-2" />
+                <p className={`${isDark ? "text-gray-300" : "text-gray-700"}`}>View Reports</p>
+              </div>
+            </button>
           </div>
         </div>
       </div>
